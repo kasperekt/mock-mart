@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   app:
     build:
@@ -8,8 +6,12 @@ services:
     ports:
       - "3000:3000"
     env_file: ".env"
+    volumes:
+      - .:/usr/src/app
+    entrypoint: ["/usr/src/app/entrypoint.sh"]
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: unless-stopped
 
   db:
@@ -20,6 +22,12 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u ${MYSQL_USER:-root} --password=${MYSQL_PASSWORD}"]
+      interval: 3s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
 volumes:
   mysql_data: 
