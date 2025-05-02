@@ -1,25 +1,31 @@
 import { ProductForm } from "@/components/admin/product-form";
 import { getProduct, updateProduct } from "@/services/products";
-import { redirect } from "next/navigation";
-import { notFound } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
+import { z } from "zod";
 
-interface EditProductPageProps {
-  params: {
-    id: string;
-  };
-}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const productSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  description: z.string().optional(),
+  price: z.string().min(1, "Price is required"),
+  category: z.string().min(1, "Category is required"),
+  image: z.string().optional(),
+});
 
-export default async function EditProductPage({ params }: EditProductPageProps) {
-  const product = await getProduct(parseInt(params.id));
+type ProductFormValues = z.infer<typeof productSchema>;
+
+export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const id = (await params).id;
+  const product = await getProduct(parseInt(id));
 
   if (!product) {
     notFound();
   }
 
-  async function onSubmit(data: any) {
+  async function onSubmit(data: ProductFormValues) {
     "use server";
     
-    await updateProduct(parseInt(params.id), {
+    await updateProduct(parseInt(id), {
       name: data.name,
       description: data.description,
       price: data.price,
@@ -36,4 +42,4 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
       <ProductForm initialData={product} onSubmit={onSubmit} />
     </div>
   );
-} 
+}

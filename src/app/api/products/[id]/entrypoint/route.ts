@@ -1,11 +1,7 @@
 import { NextResponse } from 'next/server';
 // TODO: Implement entrypoint creation logic using Drizzle ORM
-import { cookies } from 'next/headers';
 
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function POST() {
   try {
     // TODO: Implement entrypoint creation logic using Drizzle ORM
     throw new Error('Entrypoint creation logic not yet implemented with Drizzle ORM');

@@ -1,5 +1,6 @@
 import { Product } from "@/services/productService";
 import Link from "next/link";
+import Image from "next/image";
 
 interface ProductCardProps {
   product: Product;
@@ -11,11 +12,14 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="flex flex-col h-full rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
         <div className="h-48 w-full bg-gray-100 flex items-center justify-center">
           {product.image ? (
-            <img 
-              src={product.image} 
-              alt={product.title} 
-              className="max-h-full max-w-full object-contain"
-            />
+            <div className="relative h-full w-full">
+              <Image
+                src={product.image}
+                alt={product.title}
+                fill
+                className="object-contain"
+              />
+            </div>
           ) : (
             <div className="text-gray-400 text-sm">No image available</div>
           )}

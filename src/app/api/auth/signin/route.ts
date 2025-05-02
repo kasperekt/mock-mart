@@ -34,9 +34,9 @@ export async function POST(request: Request) {
     });
     
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.error('Sign in error:', error);
-    if (error.message === 'Invalid credentials') {
+    if (error instanceof Error && error.message === 'Invalid credentials') {
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }

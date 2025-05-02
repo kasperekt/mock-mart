@@ -36,7 +36,7 @@ export async function ProductList() {
           {products.map((product) => (
             <TableRow key={product.id}>
               <TableCell>{product.name}</TableCell>
-              <TableCell>${product.price.toFixed(2)}</TableCell>
+              <TableCell>${parseFloat(product.price).toFixed(2)}</TableCell>
               <TableCell>{product.category}</TableCell>
               <TableCell className="space-x-2">
                 <Link href={`/admin/products/edit/${product.id}`}>

@@ -3,10 +3,10 @@ import { getProduct } from '@/services/productService';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const productId = await Promise.resolve(params.id);
+    const productId = (await params).id;
     const product = await getProduct(Number(productId));
     if (!product) {
       return NextResponse.json(

@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { users, sessions } from "../db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { cookies } from 'next/headers';
@@ -64,6 +64,7 @@ export async function signIn(data: SignInData): Promise<{ user: PublicUser; sess
   expiresAt.setDate(expiresAt.getDate() + 7); // Session expires in 7 days
   await db.insert(sessions).values({ id: sessionId, userId: user.id, expiresAt });
   // Return user data without password
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password, ...userWithoutPassword } = user;
   return {
     user: userWithoutPassword,
@@ -89,6 +90,7 @@ export async function getCurrentUser(): Promise<PublicUser | null> {
   if (!user || !session) return null;
   if (session.expiresAt && session.expiresAt < new Date()) return null;
   // Exclude password from returned user
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password, ...userWithoutPassword } = user;
   return userWithoutPassword;
 } 

@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 interface CategoryFilterProps {
   categories: string[];
   selectedCategory: string;
@@ -9,7 +7,7 @@ interface CategoryFilterProps {
 // Define a type for category objects that might come from the API
 interface CategoryObject {
   name: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export function CategoryFilter({ 
@@ -27,11 +25,7 @@ export function CategoryFilter({
       return String(category).trim();
     }
   });
-  
-  // Log the categories for debugging
-  console.log('CategoryFilter received categories:', categoryStrings);
-  console.log('Selected category:', selectedCategory);
-  
+
   return (
     <div className="mb-6">
       <h3 className="text-lg font-medium mb-2">Filter by Category</h3>

@@ -5,21 +5,21 @@ import { getProduct } from '@/services/productService';
 import { eq, and } from 'drizzle-orm';
 
 // Mock getUserIdFromSession (replace with real auth in production)
-async function getUserIdFromSession(request: Request): Promise<number | null> {
+async function getUserIdFromSession(): Promise<number | null> {
   // TODO: Replace with real session logic
   return 1;
 }
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = await getUserIdFromSession(request);
+    const userId = await getUserIdFromSession();
     if (!userId) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
-    const productId = Number(params.id);
+    const productId = Number((await params).id);
     const { rating } = await request.json();
     if (!rating || rating < 1 || rating > 5) {
       return NextResponse.json({ error: 'Invalid rating' }, { status: 400 });

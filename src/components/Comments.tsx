@@ -1,4 +1,4 @@
-import { Comment, addComment, getCommentsByProductId } from "@/services/commentService";
+import { Comment, getCommentsByProductId } from "@/services/commentService";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
@@ -19,6 +19,7 @@ export function Comments({ productId }: CommentsProps) {
 
   useEffect(() => {
     fetchComments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
   const fetchComments = async () => {
@@ -97,7 +98,7 @@ export function Comments({ productId }: CommentsProps) {
               </Avatar>
               <div className="flex-1">
                 <p className="text-sm text-gray-500">
-                  {new Date(comment.createdAt).toLocaleDateString()}
+                  {comment.createdAt ? new Date(comment.createdAt).toLocaleDateString() : ''}
                 </p>
                 <p className="mt-1">{comment.content}</p>
               </div>

@@ -8,7 +8,6 @@ import { SearchBar } from "@/components/SearchBar";
 import { CategoryFilter } from "@/components/CategoryFilter";
 
 export default function Home() {
-  const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,7 +39,6 @@ export default function Home() {
           ? categoriesData.map(cat => typeof cat === 'string' ? cat : String(cat))
           : [];
 
-        setProducts(productsData);
         setFilteredProducts(productsData);
         setCategories(categoryStrings);
       } catch (err) {

@@ -4,21 +4,21 @@ import { eq, and } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
 // Mock getUserIdFromSession (replace with real auth in production)
-async function getUserIdFromSession(request: Request): Promise<number | null> {
+async function getUserIdFromSession(): Promise<number | null> {
   // TODO: Replace with real session logic
   return 1;
 }
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = await getUserIdFromSession(request);
+    const userId = await getUserIdFromSession();
     if (!userId) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
-    const productId = Number(params.id);
+    const productId = Number((await params).id);
     const existing = await db.select().from(ratings).where(and(eq(ratings.productId, productId), eq(ratings.userId, userId)));
     if (existing.length === 0) {
       return NextResponse.json({ rating: null });
