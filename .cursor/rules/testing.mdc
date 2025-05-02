@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+## Testing Guidelines
+
+- You use Playwright MCP server to test functionalities
+- You always assume that the website is availble at `http://localhost:3000` address

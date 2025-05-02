@@ -86,7 +86,7 @@ export default function Navigation() {
               <div className="text-gray-500">Loading...</div>
             ) : user ? (
               <div className="flex items-center space-x-4">
-                <span className="text-gray-700">Welcome, {user.name}</span>
+                  <span className="text-gray-700">Hello, {user.name}!</span>
                 <button
                   onClick={handleSignOut}
                   className="text-gray-500 hover:text-gray-700"
