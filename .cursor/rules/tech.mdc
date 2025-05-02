@@ -1,0 +1,16 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- You create code designed for next.js
+- You use Shadcn/ui (https://ui.shadcn.com/) as the UI Component library
+
+## Database
+- Always connect to database using credentials from .env file
+- This project uses Drizzle ORM library for handlign database queries, migrations and entirety of databases
+- This project uses MySQL database, operated by Drizzle ORM
+- Each time that new columns is added or a column is removed, there should be new migration generated for the Drizzle ORM
+- Make sure that when used foreign keys, types of columns match each other.
+- Before each migration happens, [schema.ts](mdc:src/db/schema.ts) file must be updated
+- New migrations are generated using `npx drizzle-kit generate` command

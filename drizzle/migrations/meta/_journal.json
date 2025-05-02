@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1745682968878,
+      "tag": "0000_narrow_tyrannus",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1745683641908,
+      "tag": "0001_seed-products",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1745684089544,
+      "tag": "0002_fair_shockwave",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1745685504708,
+      "tag": "0003_funny_gwen_stacy",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1745685534305,
+      "tag": "0004_brainy_baron_zemo",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1745686136489,
+      "tag": "0005_wandering_wallflower",
+      "breakpoints": true
+    }
+  ]
+}

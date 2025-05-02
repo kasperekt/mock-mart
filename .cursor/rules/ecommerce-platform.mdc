@@ -1,0 +1,31 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# E-commerce Platform Project Rules
+
+## Project Structure
+- The project is a Next.js-based e-commerce platform for functional testing and UI prototyping.
+- UI components use the Shadcn/ui library.
+- All database logic is handled via Drizzle ORM and a MySQL database.
+
+## Database
+- The schema is defined in [src/db/schema.ts](mdc:src/db/schema.ts).
+- Products, users, sessions, comments, and ratings are all separate tables.
+- The `ratings` table stores user ratings for products, with a unique constraint on (user, product).
+- All schema changes require updating [schema.ts](mdc:src/db/schema.ts) and generating a new migration with `npx drizzle-kit generate`.
+
+## Product Ratings
+- Ratings are not stored on the product directly, but are aggregated from the `ratings` table.
+- Each user can rate a product only once.
+- The product service ([src/services/productService.ts](mdc:src/services/productService.ts)) aggregates ratings for each product.
+- The API endpoint for submitting a rating is [src/app/api/products/[id]/rate/route.ts](mdc:src/app/api/products/[id]/rate/route.ts).
+- The API endpoint for fetching a user's rating for a product is [src/app/api/products/[id]/user-rating/route.ts](mdc:src/app/api/products/[id]/user-rating/route.ts).
+
+## UI
+- Product cards and details display the average rating and count, aggregated from the ratings table.
+- The rating component allows a logged-in user to rate a product once.
+
+## Auth
+- User authentication is required for rating; user ID is currently mocked in API endpoints for development/testing.
