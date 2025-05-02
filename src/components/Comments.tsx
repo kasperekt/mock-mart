@@ -1,5 +1,4 @@
 import { Comment, getCommentsByProductId } from "@/services/commentService";
-import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
@@ -10,15 +9,37 @@ interface CommentsProps {
   productId: number;
 }
 
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+}
+
 export function Comments({ productId }: CommentsProps) {
-  const { data: session } = useSession();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [loadingAuth, setLoadingAuth] = useState(true);
 
   useEffect(() => {
     fetchComments();
+    const fetchUser = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      } finally {
+        setLoadingAuth(false);
+      }
+    };
+    fetchUser();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
@@ -33,7 +54,7 @@ export function Comments({ productId }: CommentsProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session?.user?.id) return;
+    if (!user?.id) return;
 
     try {
       setIsSubmitting(true);
@@ -70,7 +91,7 @@ export function Comments({ productId }: CommentsProps) {
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">Comments ({comments.length})</h2>
       
-      {session ? (
+      {!loadingAuth && user ? (
         <form onSubmit={handleSubmit} className="space-y-4">
           <Textarea
             value={newComment}

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getCommentsByProductId } from '@/services/commentService';
-import { cookies } from 'next/headers';
+import { getCommentsByProductId, addComment } from '@/services/commentService';
+import { getCurrentUser } from '@/services/authService';
 
 export async function GET(
   request: Request,
@@ -19,19 +19,24 @@ export async function GET(
   }
 }
 
-export async function POST() {
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('session_id')?.value;
-    if (!sessionId) {
+    // Ensure user is authenticated
+    const user = await getCurrentUser();
+    if (!user) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       );
     }
-    // You may want to implement a getUserIdFromSession helper using Drizzle ORM
-    // For now, throw an error to indicate this needs to be implemented
-    throw new Error('getUserIdFromSession not implemented with Drizzle ORM');
+    const body = await request.json();
+    const content = body.content;
+    // Add the new comment
+    const comment = await addComment(Number((await params).id), user.id, content);
+    return NextResponse.json(comment);
   } catch (error) {
     console.error('Error adding comment:', error);
     return NextResponse.json(

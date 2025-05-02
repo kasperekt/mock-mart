@@ -3,7 +3,6 @@ import { users, sessions } from "../db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
-import { cookies } from 'next/headers';
 
 export interface User {
   id: number;
@@ -77,6 +76,8 @@ export async function signOut(sessionId: string): Promise<void> {
 }
 
 export async function getCurrentUser(): Promise<PublicUser | null> {
+  // Dynamically import cookies to ensure proper server context
+  const { cookies } = await import('next/headers');
   const cookieStore = await cookies();
   const sessionId = cookieStore.get('session_id')?.value;
   if (!sessionId) {

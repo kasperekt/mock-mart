@@ -23,17 +23,17 @@ export async function POST(request: Request) {
       );
     }
     
-    // Set the session cookie
-    const response = NextResponse.json({ user });
-    response.cookies.set('session_id', sessionId, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-      path: '/',
-    });
-    
-    return response;
+    // Manually set the session_id cookie using Set-Cookie header
+    const cookieValue = `session_id=${sessionId}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${7 * 24 * 60 * 60}`;
+    return NextResponse.json(
+      { user },
+      {
+        status: 200,
+        headers: {
+          'Set-Cookie': cookieValue,
+        },
+      }
+    );
   } catch (error) {
     console.error('Sign in error:', error);
     if (error instanceof Error && error.message === 'Invalid credentials') {
