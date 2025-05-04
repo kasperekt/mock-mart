@@ -8,3 +8,4 @@ alwaysApply: true
 - This project is a e-commerce store platform that works on mocked data
 - The platform is designed to practice functional testing using Playwright
 - It's not supposed to be used with real data
+- To run application, run `docker compose up --build` command

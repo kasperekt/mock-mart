@@ -14,6 +14,8 @@ MYSQL_PORT=3306
 MYSQL_USER=your_mysql_user
 MYSQL_PASSWORD=your_mysql_password
 MYSQL_DATABASE=mockmart
+MYSQL_ROOT_PASSWORD=your_root_password
+DB_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
 ```
 
 - Make sure these values match your local or Docker MySQL setup.
@@ -28,7 +30,7 @@ MYSQL_DATABASE=mockmart
 This will start both the Next.js app and a MySQL database.
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 - The app will be available at [http://localhost:3000](http://localhost:3000).
