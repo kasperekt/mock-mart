@@ -43,6 +43,13 @@
       "when": 1745686136489,
       "tag": "0005_wandering_wallflower",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1746641680927,
+      "tag": "0006_volatile_monster_badoon",
+      "breakpoints": true
     }
   ]
 }

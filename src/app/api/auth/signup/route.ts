@@ -29,6 +29,23 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+    if (data.password.length > 50) {
+      return NextResponse.json(
+        { error: 'Password must be at most 50 characters long' },
+        { status: 400 }
+      );
+    }
+
+    // Validate name does not contain emojis
+    const emojiRegex = /[\p{Emoji}]/u;
+    if (emojiRegex.test(data.name)) {
+      return NextResponse.json(
+        { error: 'Name must not contain emojis' },
+        { status: 400 }
+      );
+    }
+
+
     
     // Create the user
     const user = await signUp(data);
