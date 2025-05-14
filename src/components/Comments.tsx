@@ -1,4 +1,4 @@
-import { Comment, getCommentsByProductId } from "@/services/commentService";
+import { Comment as BaseComment, getCommentsByProductId } from "@/services/commentService";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
@@ -14,6 +14,10 @@ interface User {
   name: string;
   email: string;
   role: string;
+}
+
+interface Comment extends BaseComment {
+  username?: string;
 }
 
 export function Comments({ productId }: CommentsProps) {
@@ -46,7 +50,34 @@ export function Comments({ productId }: CommentsProps) {
   const fetchComments = async () => {
     try {
       const fetchedComments = await getCommentsByProductId(productId);
-      setComments(fetchedComments);
+
+      // Fetch user information for comments
+      const usersMap = new Map();
+      const commentsWithUsernames = await Promise.all(
+        fetchedComments.map(async (comment: Comment) => {
+          try {
+            if (!usersMap.has(comment.userId)) {
+              const userRes = await fetch(`/api/users/${comment.userId}`);
+              if (userRes.ok) {
+                const userData = await userRes.json();
+                usersMap.set(comment.userId, userData.name);
+              }
+            }
+            return {
+              ...comment,
+              username: usersMap.get(comment.userId) || 'Anonymous User'
+            };
+          } catch (error) {
+            console.error(`Error fetching user for comment ${comment.id}:`, error);
+            return {
+              ...comment,
+              username: 'Anonymous User'
+            };
+          }
+        })
+      );
+
+      setComments(commentsWithUsernames);
     } catch (error) {
       console.error('Error fetching comments:', error);
     }
@@ -114,10 +145,11 @@ export function Comments({ productId }: CommentsProps) {
           <Card key={comment.id} className="p-4">
             <div className="flex items-start space-x-4">
               <Avatar>
-                <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${comment.userId}`} />
+                <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${comment.username || comment.userId}`} />
                 <AvatarFallback>User</AvatarFallback>
               </Avatar>
               <div className="flex-1">
+                <p className="font-medium">{comment.username || 'Anonymous User'}</p>
                 <p className="text-sm text-gray-500">
                   {comment.createdAt ? new Date(comment.createdAt).toLocaleDateString() : ''}
                 </p>

@@ -12,9 +12,12 @@ import { Button } from "@/components/ui/button";
 
 interface Comment {
   id?: number;
+  productId: number;
+  userId: number;
   content: string;
-  username: string;
-  created_at: string;
+  createdAt: Date | null | string;
+  username?: string; // Optional for backward compatibility
+  created_at?: string; // Optional for backward compatibility
 }
 
 export default function ProductDetails() {
@@ -45,8 +48,34 @@ export default function ProductDetails() {
           commentsRes.json()
         ]);
         
+        // Fetch user information for comments
+        const usersMap = new Map();
+        const commentUsers = await Promise.all(
+          commentsData.map(async (comment: Comment) => {
+            try {
+              if (!usersMap.has(comment.userId)) {
+                const userRes = await fetch(`/api/users/${comment.userId}`);
+                if (userRes.ok) {
+                  const userData = await userRes.json();
+                  usersMap.set(comment.userId, userData.name);
+                }
+              }
+              return {
+                ...comment,
+                username: usersMap.get(comment.userId) || 'Anonymous User'
+              };
+            } catch (error) {
+              console.error(`Error fetching user for comment ${comment.id}:`, error);
+              return {
+                ...comment,
+                username: 'Anonymous User'
+              };
+            }
+          })
+        );
+
         setProduct(productData);
-        setComments(commentsData);
+        setComments(commentUsers);
       } catch (err) {
         console.error("Error fetching data:", err);
         setError("Failed to load data. Please try again later.");
@@ -172,7 +201,11 @@ export default function ProductDetails() {
                         <div className="flex items-center justify-between mb-2">
                           <span className="font-medium">{comment.username}</span>
                           <span className="text-sm text-gray-500">
-                            {new Date(comment.created_at).toLocaleDateString()}
+                            {comment.createdAt
+                              ? new Date(comment.createdAt).toLocaleDateString()
+                              : comment.created_at
+                                ? new Date(comment.created_at).toLocaleDateString()
+                                : new Date().toLocaleDateString()}
                           </span>
                         </div>
                         <p className="text-gray-700">{comment.content}</p>

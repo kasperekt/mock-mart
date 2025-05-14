@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "./ui/alert";
 
 interface ProductCommentProps {
   productId: number;
   onClose: () => void;
   onAddComment: (comment: {
     id?: number;
+    productId: number;
+    userId: number;
     content: string;
-    username: string;
-    created_at: string;
+    createdAt: Date | null | string;
+    username?: string;
   }) => void;
 }
 
@@ -58,9 +60,11 @@ export function ProductComment({ productId, onClose, onAddComment }: ProductComm
 
     // Create an optimistic comment
     const optimisticComment = {
+      productId: productId,
+      userId: user.id,
       content: comment,
-      username: user.name || 'Anonymous User',
-      created_at: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      username: user.name || 'Anonymous User'
     };
 
     // Add the optimistic comment to the UI immediately
