@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { comments } from "../db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 
 export interface Comment {
   id: number;
@@ -11,7 +11,9 @@ export interface Comment {
 }
 
 export async function getCommentsByProductId(productId: number): Promise<Comment[]> {
-  const rows = await db.select().from(comments).where(eq(comments.productId, productId));
+  const rows = await db.select().from(comments)
+    .where(eq(comments.productId, productId))
+    .orderBy(desc(comments.createdAt)); // Sort by newest first
   return rows.map(row => ({
     id: row.id,
     productId: row.productId,
@@ -22,13 +24,16 @@ export async function getCommentsByProductId(productId: number): Promise<Comment
 }
 
 export async function addComment(productId: number, userId: number, content: string): Promise<Comment> {
-  // Check if user already has a comment for this product
-  const existing = await db.select().from(comments).where(and(eq(comments.productId, productId), eq(comments.userId, userId)));
-  if (existing.length > 0) {
-    throw new Error('User has already commented on this product');
-  }
+  // Insert the comment directly without checking for existing comments
   await db.insert(comments).values({ productId, userId, content });
-  const [comment] = await db.select().from(comments).where(and(eq(comments.productId, productId), eq(comments.userId, userId)));
+
+  // Get the newly added comment (should be the most recent one from this user on this product)
+  const [comment] = await db.select()
+    .from(comments)
+    .where(and(eq(comments.productId, productId), eq(comments.userId, userId)))
+    .orderBy(desc(comments.createdAt))
+    .limit(1);
+
   return {
     id: comment.id,
     productId: comment.productId,
