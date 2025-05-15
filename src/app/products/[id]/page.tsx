@@ -8,7 +8,9 @@ import Navigation from "@/components/Navigation";
 import { Rating } from "@/components/Rating";
 import Image from "next/image";
 import { ProductComment } from "@/components/ProductComment";
+import { EditCommentModal } from "@/components/EditCommentModal";
 import { Button } from "@/components/ui/button";
+import { Edit2, Trash2 } from "lucide-react";
 
 interface Comment {
   id?: number;
@@ -20,6 +22,12 @@ interface Comment {
   created_at?: string; // Optional for backward compatibility
 }
 
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
 export default function ProductDetails() {
   const params = useParams();
   const productId = params.id as string;
@@ -29,6 +37,24 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showComment, setShowComment] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [editingComment, setEditingComment] = useState<{ id: number; content: string } | null>(null);
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+          const data = await response.json();
+          setCurrentUser(data.user);
+        }
+      } catch (error) {
+        console.error('Error fetching current user:', error);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
 
   useEffect(() => {
     const fetchProductAndComments = async () => {
@@ -92,6 +118,44 @@ export default function ProductDetails() {
   const handleAddComment = (newComment: Comment) => {
     // Add the new comment to the beginning of the list
     setComments(prevComments => [newComment, ...prevComments]);
+  };
+
+  const handleEditComment = (commentId: number, content: string) => {
+    setEditingComment({ id: commentId, content });
+  };
+
+  const handleUpdateComment = (updatedComment: { id: number; content: string }) => {
+    setComments(prevComments =>
+      prevComments.map(comment =>
+        comment.id === updatedComment.id
+          ? { ...comment, content: updatedComment.content }
+          : comment
+      )
+    );
+    setEditingComment(null);
+  };
+
+  const handleDeleteComment = async (commentId: number) => {
+    if (!window.confirm('Are you sure you want to delete this comment?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/comments/${commentId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to delete comment');
+      }
+
+      // Remove the deleted comment from the list
+      setComments(prevComments => prevComments.filter(comment => comment.id !== commentId));
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      alert('Failed to delete comment. Please try again.');
+    }
   };
 
   return (
@@ -209,6 +273,28 @@ export default function ProductDetails() {
                           </span>
                         </div>
                         <p className="text-gray-700">{comment.content}</p>
+
+                        {/* Show edit/delete buttons only for comments by the current user */}
+                        {currentUser && comment.userId === currentUser.id && comment.id && (
+                          <div className="mt-2 flex justify-end space-x-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditComment(comment.id!, comment.content)}
+                              className="flex items-center gap-1 text-xs"
+                            >
+                              <Edit2 className="h-3 w-3" /> Edit
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDeleteComment(comment.id!)}
+                              className="flex items-center gap-1 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-3 w-3" /> Delete
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -231,6 +317,15 @@ export default function ProductDetails() {
         />
       )}
       
+      {editingComment && (
+        <EditCommentModal
+          commentId={editingComment.id}
+          initialContent={editingComment.content}
+          onClose={() => setEditingComment(null)}
+          onCommentUpdated={handleUpdateComment}
+        />
+      )}
+
       <footer className="bg-white border-t border-gray-200 mt-12">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <p className="text-center text-gray-500 text-sm">

@@ -43,6 +43,46 @@ export async function addComment(productId: number, userId: number, content: str
   };
 }
 
+export async function editComment(commentId: number, userId: number, content: string): Promise<Comment | null> {
+  // Update the comment only if it belongs to the user
+  await db.update(comments)
+    .set({ content })
+    .where(and(eq(comments.id, commentId), eq(comments.userId, userId)));
+
+  // Get the updated comment
+  const rows = await db.select()
+    .from(comments)
+    .where(eq(comments.id, commentId));
+
+  if (rows.length === 0) return null;
+
+  const comment = rows[0];
+  return {
+    id: comment.id,
+    productId: comment.productId,
+    userId: comment.userId,
+    content: comment.content,
+    createdAt: comment.createdAt ? new Date(comment.createdAt) : null
+  };
+}
+
+export async function deleteComment(commentId: number, userId: number): Promise<boolean> {
+  // First check if the comment exists and belongs to the user
+  const commentExists = await db.select({ id: comments.id })
+    .from(comments)
+    .where(and(eq(comments.id, commentId), eq(comments.userId, userId)));
+
+  if (commentExists.length === 0) {
+    return false;
+  }
+
+  // Delete the comment
+  await db.delete(comments)
+    .where(and(eq(comments.id, commentId), eq(comments.userId, userId)));
+
+  return true;
+}
+
 export async function getCommentCountByProductId(productId: number): Promise<number> {
   const rows = await db.select().from(comments).where(eq(comments.productId, productId));
   return rows.length;
