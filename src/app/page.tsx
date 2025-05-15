@@ -2,95 +2,47 @@
 
 import { useState, useEffect } from "react";
 import { Product } from "@/services/productService";
-import { ProductCard } from "@/components/ProductCard";
 import Navigation from "@/components/Navigation";
-import { SearchBar } from "@/components/SearchBar";
-import { CategoryFilter } from "@/components/CategoryFilter";
+import { ProductCarousel } from "@/components/ProductCarousel";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [newArrivals, setNewArrivals] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch initial data
+  // Fetch products
   useEffect(() => {
-    const fetchInitialData = async () => {
+    const fetchProducts = async () => {
       try {
         setLoading(true);
-        const [productsRes, categoriesRes] = await Promise.all([
-          fetch('/api/products'),
-          fetch('/api/categories')
-        ]);
+        const response = await fetch('/api/products');
 
-        if (!productsRes.ok || !categoriesRes.ok) {
-          throw new Error('Failed to fetch initial data');
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
         }
 
-        const [productsData, categoriesData] = await Promise.all([
-          productsRes.json(),
-          categoriesRes.json()
-        ]);
+        const productsData = await response.json();
 
-        // Ensure categories are strings
-        const categoryStrings = Array.isArray(categoriesData) 
-          ? categoriesData.map(cat => typeof cat === 'string' ? cat : String(cat))
-          : [];
+        // Create featured products (random selection of 8 products)
+        const shuffled = [...productsData].sort(() => 0.5 - Math.random());
+        setFeaturedProducts(shuffled.slice(0, 8));
 
-        setFilteredProducts(productsData);
-        setCategories(categoryStrings);
+        // Create new arrivals (another random selection of 8 different products)
+        const remaining = shuffled.slice(8);
+        setNewArrivals(remaining.slice(0, 8));
       } catch (err) {
-        console.error("Error fetching initial data:", err);
+        console.error("Error fetching products:", err);
         setError("Failed to load products. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchInitialData();
+    fetchProducts();
   }, []);
-
-  // Handle search and category filtering
-  useEffect(() => {
-    const fetchFilteredProducts = async () => {
-      try {
-        setLoading(true);
-        
-        const params = new URLSearchParams();
-        if (searchQuery) params.append('query', searchQuery);
-        if (selectedCategory) params.append('category', selectedCategory);
-        
-        console.log('Fetching filtered products with params:', params.toString());
-        
-        const response = await fetch(`/api/products?${params}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch filtered products');
-        }
-        
-        const data = await response.json();
-        console.log('Filtered products:', data);
-        setFilteredProducts(data);
-      } catch (err) {
-        console.error("Error filtering products:", err);
-        setError("Failed to filter products. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFilteredProducts();
-  }, [searchQuery, selectedCategory]);
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
-
-  const handleCategoryChange = (category: string) => {
-    console.log('Category changed to:', category);
-    setSelectedCategory(category);
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -98,17 +50,6 @@ export default function Home() {
       
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-            <h2 className="text-xl font-semibold mb-4 md:mb-0">Featured Products</h2>
-            <SearchBar onSearch={handleSearch} />
-          </div>
-          
-          <CategoryFilter 
-            categories={categories} 
-            selectedCategory={selectedCategory}
-            onCategoryChange={handleCategoryChange} 
-          />
-          
           {error && (
             <div className="text-center py-12">
               <p className="text-red-500">{error}</p>
@@ -119,16 +60,28 @@ export default function Home() {
             <div className="text-center py-12">
               <p className="text-gray-500">Loading products...</p>
             </div>
-          ) : filteredProducts.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500">No products found matching your criteria.</p>
-            </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <>
+              <div className="mb-12">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-semibold">Featured Products</h2>
+                  <Link href="/products">
+                    <Button variant="outline">View All Products</Button>
+                  </Link>
+                </div>
+                <ProductCarousel products={featuredProducts} />
+              </div>
+
+              <div className="mb-12">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-semibold">New Arrivals</h2>
+                  <Link href="/products">
+                    <Button variant="outline">View All Products</Button>
+                  </Link>
+                </div>
+                  <ProductCarousel products={newArrivals} />
+                </div>
+              </>
           )}
         </div>
       </main>
