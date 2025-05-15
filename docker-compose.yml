@@ -13,6 +13,21 @@ services:
       db:
         condition: service_healthy
     restart: unless-stopped
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /usr/src/app/src
+          ignore:
+            - "**/.git"
+            - "**/node_modules"
+        - action: sync
+          path: ./public
+          target: /usr/src/app/public
+        - action: rebuild
+          path: ./package.json
+        - action: rebuild
+          path: ./package-lock.json
 
   db:
     image: mysql:8.0

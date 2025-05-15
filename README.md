@@ -27,7 +27,7 @@ DB_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
 
 ### 1. Using Docker (Recommended)
 
-This will start both the Next.js app and a MySQL database.
+This will start both the Next.js app and a MySQL database in production mode.
 
 ```bash
 docker compose up --build
@@ -37,7 +37,23 @@ docker compose up --build
 - Database credentials are loaded from your `.env` file.
 - Drizzle migrations are run automatically on startup.
 
-### 2. Local Development (without Docker)
+### 2. Development Mode with File Watching
+
+For development with hot reloading and file watching (changes will automatically update as you code):
+
+```bash
+docker compose up --watch
+```
+
+The watch mode:
+- Automatically syncs source code changes to the container
+- Rebuilds when package.json changes
+- Ignores node_modules directory for better performance
+- Works with Next.js hot module replacement
+
+> Note: Requires Docker Compose version 2.22.0 or later
+
+### 3. Local Development (without Docker)
 
 1. **Install dependencies:**
    ```bash

@@ -49,6 +49,25 @@ export default function Home() {
       <Navigation />
       
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        {/* Hero/Intro Section */}
+        <div className="bg-white shadow-sm rounded-lg mb-8 overflow-hidden">
+          <div className="px-6 py-12 sm:px-12 sm:py-16 flex flex-col items-center text-center">
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-4">Welcome to MockMart</h1>
+            <p className="text-lg text-gray-600 max-w-2xl mb-6">
+              Your one-stop destination for quality products at affordable prices. Browse our wide selection
+              of items carefully curated for your everyday needs and special occasions.
+            </p>
+            <p className="text-md text-gray-500 italic mb-8">
+              Note: This is a demo store for testing purposes. No real transactions are processed.
+            </p>
+            <Link href="/products">
+              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3">
+                Explore Our Collection
+              </Button>
+            </Link>
+          </div>
+        </div>
+
         <div className="px-4 py-6 sm:px-0">
           {error && (
             <div className="text-center py-12">
