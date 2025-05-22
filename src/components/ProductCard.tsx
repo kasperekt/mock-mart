@@ -1,3 +1,4 @@
+import React from 'react';
 import { Product } from "@/services/productService";
 import Link from "next/link";
 import Image from "next/image";

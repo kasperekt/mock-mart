@@ -38,11 +38,9 @@
     "zod": "^3.24.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.27.1",
-    "@babel/preset-env": "^7.27.2",
-    "@babel/preset-react": "^7.27.1",
-    "@babel/preset-typescript": "^7.27.1",
     "@eslint/eslintrc": "^3",
+    "@swc/core": "^1.4.8",
+    "@swc/jest": "^0.2.36",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
@@ -50,7 +48,6 @@
     "@types/node": "^20.17.30",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "babel-jest": "^29.7.0",
     "dotenv": "^16.5.0",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
