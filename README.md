@@ -53,7 +53,34 @@ The watch mode:
 
 > Note: Requires Docker Compose version 2.22.0 or later
 
-### 3. Local Development (without Docker)
+### 3. Database Purge Mode
+
+To completely reset/purge the database when starting the application, use the `PURGE_DB` flag:
+
+```bash
+# Using environment variable
+PURGE_DB=true docker compose up --build
+
+# Or export the variable first
+export PURGE_DB=true
+docker compose up --build
+```
+
+**⚠️ Warning:** This will **permanently delete all data** in the database and recreate it from scratch. Use with caution!
+
+**When to use:**
+- Fresh testing environment
+- Clearing corrupted data
+- Starting with clean slate for development
+- Resetting to initial state
+
+The purge process:
+1. Drops the existing database (if it exists)
+2. Creates a new empty database
+3. Runs all migrations to set up the schema
+4. Starts the application
+
+### 4. Local Development (without Docker)
 
 1. **Install dependencies:**
    ```bash
@@ -92,6 +119,12 @@ The watch mode:
   npx drizzle-kit generate
   ```
 - Migrations are stored in the `drizzle/migrations/` directory.
+
+### Database Reset Options
+
+- **Soft reset:** Stop containers and restart without `PURGE_DB` flag (keeps data)
+- **Hard reset:** Use `PURGE_DB=true` flag to completely wipe and recreate database
+- **Volume reset:** Remove Docker volume manually: `docker volume rm mock-mart_mysql_data`
 
 ---
 

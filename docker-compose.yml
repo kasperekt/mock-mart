@@ -6,6 +6,8 @@ services:
     ports:
       - "3000:3000"
     env_file: ".env"
+    environment:
+      - PURGE_DB=${PURGE_DB:-false}
     volumes:
       - .:/usr/src/app
     entrypoint: ["/usr/src/app/entrypoint.sh"]
