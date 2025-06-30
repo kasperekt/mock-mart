@@ -1,20 +1,35 @@
 import { NextResponse } from 'next/server';
-import { getAllProducts, getProductsByCategory, searchProducts } from '@/services/productService';
+import { getProductsWithFilters } from '@/services/productService';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category');
-    const query = searchParams.get('query');
+    const category = searchParams.get('category') || undefined;
+    const query = searchParams.get('query') || undefined;
+    const minPriceParam = searchParams.get('minPrice');
+    const maxPriceParam = searchParams.get('maxPrice');
 
-    let products;
-    if (category) {
-      products = await getProductsByCategory(category);
-    } else if (query) {
-      products = await searchProducts(query);
-    } else {
-      products = await getAllProducts();
+    // Parse price parameters
+    const minPrice = minPriceParam ? parseFloat(minPriceParam) : undefined;
+    const maxPrice = maxPriceParam ? parseFloat(maxPriceParam) : undefined;
+
+    // Validate price parameters
+    if (minPriceParam && isNaN(minPrice as number)) {
+      return NextResponse.json(
+        { error: 'Invalid minPrice parameter' },
+        { status: 400 }
+      );
     }
+
+    if (maxPriceParam && isNaN(maxPrice as number)) {
+      return NextResponse.json(
+        { error: 'Invalid maxPrice parameter' },
+        { status: 400 }
+      );
+    }
+
+    // Use the new filtering function
+    const products = await getProductsWithFilters(query, category, minPrice, maxPrice);
 
     return NextResponse.json(products);
   } catch (error) {

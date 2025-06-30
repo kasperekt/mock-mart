@@ -6,12 +6,15 @@ import { ProductCard } from "@/components/ProductCard";
 import Navigation from "@/components/Navigation";
 import { SearchBar } from "@/components/SearchBar";
 import { CategoryFilter } from "@/components/CategoryFilter";
+import { PriceFilter } from "@/components/PriceFilter";
 
 export default function ProductsPage() {
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<string[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
+    const [minPrice, setMinPrice] = useState<number | null>(null);
+    const [maxPrice, setMaxPrice] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -52,7 +55,7 @@ export default function ProductsPage() {
         fetchInitialData();
     }, []);
 
-    // Handle search and category filtering
+    // Handle search, category, and price filtering
     useEffect(() => {
         const fetchFilteredProducts = async () => {
             try {
@@ -61,6 +64,8 @@ export default function ProductsPage() {
                 const params = new URLSearchParams();
                 if (searchQuery) params.append('query', searchQuery);
                 if (selectedCategory) params.append('category', selectedCategory);
+                if (minPrice !== null) params.append('minPrice', minPrice.toString());
+                if (maxPrice !== null) params.append('maxPrice', maxPrice.toString());
 
                 const response = await fetch(`/api/products?${params}`);
                 if (!response.ok) {
@@ -78,7 +83,7 @@ export default function ProductsPage() {
         };
 
         fetchFilteredProducts();
-    }, [searchQuery, selectedCategory]);
+    }, [searchQuery, selectedCategory, minPrice, maxPrice]);
 
     const handleSearch = (query: string) => {
         setSearchQuery(query);
@@ -86,6 +91,11 @@ export default function ProductsPage() {
 
     const handleCategoryChange = (category: string) => {
         setSelectedCategory(category);
+    };
+
+    const handlePriceFilter = (min: number | null, max: number | null) => {
+        setMinPrice(min);
+        setMaxPrice(max);
     };
 
     return (
@@ -103,6 +113,12 @@ export default function ProductsPage() {
                         categories={categories}
                         selectedCategory={selectedCategory}
                         onCategoryChange={handleCategoryChange}
+                    />
+
+                    <PriceFilter
+                        onPriceFilter={handlePriceFilter}
+                        minPrice={minPrice}
+                        maxPrice={maxPrice}
                     />
 
                     {error && (

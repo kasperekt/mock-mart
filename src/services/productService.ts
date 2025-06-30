@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { products, ratings } from "../db/schema";
-import { eq, like, sql } from "drizzle-orm";
+import { eq, like, sql, and } from "drizzle-orm";
 
 export interface Product {
   id: number;
@@ -100,4 +100,56 @@ export async function getProduct(id: number): Promise<Product | null> {
     image: row.image,
     rating
   };
+}
+
+export async function getProductsWithFilters(
+  searchQuery?: string,
+  category?: string,
+  minPrice?: number,
+  maxPrice?: number
+): Promise<Product[]> {
+  const conditions = [];
+
+  // Add search condition
+  if (searchQuery) {
+    conditions.push(like(products.name, `%${searchQuery}%`));
+  }
+
+  // Add category condition
+  if (category) {
+    conditions.push(eq(products.category, category));
+  }
+
+  // Add price conditions
+  if (minPrice !== undefined) {
+    conditions.push(sql`${products.price} >= ${minPrice}`);
+  }
+
+  if (maxPrice !== undefined) {
+    conditions.push(sql`${products.price} <= ${maxPrice}`);
+  }
+
+  // Build the where clause
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  // Execute query
+  const rows = whereClause
+    ? await db.select().from(products).where(whereClause)
+    : await db.select().from(products);
+
+  // Add ratings to each product
+  const productsWithRatings = await Promise.all(rows.map(async row => {
+    const rating = await getProductRating(row.id);
+    return {
+      id: row.id,
+      title: row.name,
+      price: Number(row.price),
+      description: row.description,
+      category: row.category,
+      image: row.image,
+      rating
+    };
+  }));
+
+  return productsWithRatings;
 } 
