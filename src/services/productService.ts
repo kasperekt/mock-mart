@@ -106,7 +106,8 @@ export async function getProductsWithFilters(
   searchQuery?: string,
   category?: string,
   minPrice?: number,
-  maxPrice?: number
+  maxPrice?: number,
+  minRating?: number
 ): Promise<Product[]> {
   const conditions = [];
 
@@ -151,5 +152,10 @@ export async function getProductsWithFilters(
     };
   }));
 
-  return productsWithRatings;
+  // Filter by minimum rating if specified
+  const filteredByRating = minRating !== undefined
+    ? productsWithRatings.filter(product => product.rating.rate >= minRating)
+    : productsWithRatings;
+
+  return filteredByRating;
 } 

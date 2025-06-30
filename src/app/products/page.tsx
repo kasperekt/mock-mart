@@ -7,6 +7,7 @@ import Navigation from "@/components/Navigation";
 import { SearchBar } from "@/components/SearchBar";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { PriceFilter } from "@/components/PriceFilter";
+import { RatingFilter } from "@/components/RatingFilter";
 
 export default function ProductsPage() {
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -15,6 +16,7 @@ export default function ProductsPage() {
     const [selectedCategory, setSelectedCategory] = useState("");
     const [minPrice, setMinPrice] = useState<number | null>(null);
     const [maxPrice, setMaxPrice] = useState<number | null>(null);
+    const [minRating, setMinRating] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -55,7 +57,7 @@ export default function ProductsPage() {
         fetchInitialData();
     }, []);
 
-    // Handle search, category, and price filtering
+    // Handle search, category, price, and rating filtering
     useEffect(() => {
         const fetchFilteredProducts = async () => {
             try {
@@ -66,6 +68,7 @@ export default function ProductsPage() {
                 if (selectedCategory) params.append('category', selectedCategory);
                 if (minPrice !== null) params.append('minPrice', minPrice.toString());
                 if (maxPrice !== null) params.append('maxPrice', maxPrice.toString());
+                if (minRating !== null) params.append('minRating', minRating.toString());
 
                 const response = await fetch(`/api/products?${params}`);
                 if (!response.ok) {
@@ -83,7 +86,7 @@ export default function ProductsPage() {
         };
 
         fetchFilteredProducts();
-    }, [searchQuery, selectedCategory, minPrice, maxPrice]);
+    }, [searchQuery, selectedCategory, minPrice, maxPrice, minRating]);
 
     const handleSearch = (query: string) => {
         setSearchQuery(query);
@@ -96,6 +99,10 @@ export default function ProductsPage() {
     const handlePriceFilter = (min: number | null, max: number | null) => {
         setMinPrice(min);
         setMaxPrice(max);
+    };
+
+    const handleRatingFilter = (rating: number | null) => {
+        setMinRating(rating);
     };
 
     return (
@@ -119,6 +126,11 @@ export default function ProductsPage() {
                         onPriceFilter={handlePriceFilter}
                         minPrice={minPrice}
                         maxPrice={maxPrice}
+                    />
+
+                    <RatingFilter
+                        onRatingFilter={handleRatingFilter}
+                        minRating={minRating}
                     />
 
                     {error && (

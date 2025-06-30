@@ -8,10 +8,12 @@ export async function GET(request: Request) {
     const query = searchParams.get('query') || undefined;
     const minPriceParam = searchParams.get('minPrice');
     const maxPriceParam = searchParams.get('maxPrice');
+    const minRatingParam = searchParams.get('minRating');
 
     // Parse price parameters
     const minPrice = minPriceParam ? parseFloat(minPriceParam) : undefined;
     const maxPrice = maxPriceParam ? parseFloat(maxPriceParam) : undefined;
+    const minRating = minRatingParam ? parseFloat(minRatingParam) : undefined;
 
     // Validate price parameters
     if (minPriceParam && isNaN(minPrice as number)) {
@@ -28,8 +30,23 @@ export async function GET(request: Request) {
       );
     }
 
+    // Validate rating parameter
+    if (minRatingParam && isNaN(minRating as number)) {
+      return NextResponse.json(
+        { error: 'Invalid minRating parameter' },
+        { status: 400 }
+      );
+    }
+
+    if (minRating !== undefined && (minRating < 0 || minRating > 5)) {
+      return NextResponse.json(
+        { error: 'minRating must be between 0 and 5' },
+        { status: 400 }
+      );
+    }
+
     // Use the new filtering function
-    const products = await getProductsWithFilters(query, category, minPrice, maxPrice);
+    const products = await getProductsWithFilters(query, category, minPrice, maxPrice, minRating);
 
     return NextResponse.json(products);
   } catch (error) {
